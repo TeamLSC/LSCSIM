@@ -1,0 +1,167 @@
+#######################
+## Hadronic processes
+#######################
+/cupdebug/cupparam omit_hadronic_processes  1.0
+/cupdebug/cupparam omit_neutron_hp  1.0
+
+####################
+## Select Detector
+####################
+/detector/select LscDetector
+
+#############################
+### Select Detector Geometry
+##############################
+/detGeometry/select lscyemilab
+
+###########################
+### Select Quenching Model
+############################
+/detGeometry/quenchingModel 1 # 0: by particle type, 1: by Birks
+
+####################
+## Set Ntuple Contents (On/Off) default:0
+####################
+/ntuple/primary 1
+/ntuple/track 0
+/ntuple/step 0
+/ntuple/photon 1
+/ntuple/scint 1
+
+###################
+## Set cut values
+###################
+/Cup/phys/CutsAll 0.001 mm
+/Cup/phys/DetectorCuts 0.001 mm
+
+###########################
+## Select Physics process
+###########################
+/Cup/phys/Physics livermore
+#/Cup/phys/Physics emstandardNR
+/Cup/phys/Physics lscphysicsOp
+#/Cup/phys/Physics lscphysicsHad
+
+########################
+## verboseLevel option
+########################
+/run/verbose 1
+/event/verbose 1
+/control/verbose 0
+/tracking/verbose 2
+/tracking/storeTrajectory 0
+
+###############
+## Initialize
+###############
+/run/initialize
+
+#####################
+## Output Root File
+#####################
+/event/output_file OUTPUT
+
+#####################################
+## Splits events that exceed window
+#####################################
+/process/activate DeferTrackProc
+#/process/inactivate DeferTrackProc
+
+############################
+## Scintillation processes
+############################
+/cupscint/on #off
+/process/activate Cerenkov
+#/process/inactivate Cerenkov
+
+##########################
+## Scintillation Verbose
+##########################
+/cupscint/verbose 1
+
+####################
+## PMTOpticalModel
+####################
+#/PMTOpticalModel/verbose 0
+#/PMTOpticalModel/luxlevel 3
+
+#################
+## Process list
+#################
+/process/list
+
+######################
+## EM process Option
+######################
+/process/em/deexcitation crystals true true true
+/process/em/fluo true
+/process/em/auger true
+/process/em/pixe true
+
+############################
+## RadioactiveDecay Option
+############################
+#/grdm/applyICM false
+#/grdm/applyARM false
+#/grdm/nucleusLimits 237 237 95 95
+
+####################
+## Debug messenger
+####################
+#/cupdebug/dumpmat
+#/cupdebug/dumpgeom
+#/cupdebug/cupparam_dump
+
+
+#########################
+## How to set particles
+#########################
+############################################################################################################
+## (1) source test											   #
+#Primary event generator: use user controlled particle gun, number 3, which uses vtx #17, pos #9	   #
+#/generator/event_window 1000 (default: 1000ns)								   #
+#/generator/rates 3 1 (default: 1 Hz)									   #
+#/generator/pos/set index "x y z" (fixed position of the point in mm)					   #
+#/generator/pos/set index "x y z fill [physicalVolumeName]" (positions uniformly filling a physical volume)#
+#/generator/pos/set 9 "400 0 0 fill GammaCatcherInteriorPhys"						   #
+#/generator/vtx/set index "particle_name dirx diry dirz kineticEnergyMeV [polx poly polz] 		   #	
+#/generator/vtx/set 17 "Th232 0 0 0  0" (Thorium 232 nuclei at rest)					   #
+#													   #
+## (2) events from external event generator								   #
+#Use the "spare hepevt" generator, number 38, which uses vtx#18 and pos#10 				   #
+#Tell the generator to merge/split events separated by less/more than 1e7 ns 				   #
+#/generator/event_window 1e7										   #
+#/generator/rates 38 1.0										   #
+#/generator/vtx/set 18 "/users/ejjeon/work/reno/reno_v2.0.4/MockSim/gen/Co60.dat"			   #
+#/generator/vtx/set 18 "/users/ejjeon/work/reno/reno_v2.0.4/MockSim/gen/trivial_co60_gammas |"		   #
+############################################################################################################
+
+##############################################################################################
+## Radioactive source: Th232 (1 per 1E11 years ~0.3E-18 Bq (each nucleus has time to decay)) 
+##############################################################################################
+/generator/event_window EVENTWINDOW
+/generator/rates 3 DECAYRATE
+
+################
+## Source test
+################
+
+#/generator/vtx/set 18 INPUT
+#"/data/MC/AMoRE-pilot/user-scratch/basehw/nGen/dist3500/bin9/NeutSpectrum_dist3500_run"
+#/home/kwkim/work/10_Simul/lscsimv402/command/out.dat"
+
+## For pos setup: internal
+/generator/pos/set 9 "0 0 0 fill physTarget LS_LAB"
+
+## For vtx setup
+/generator/vtx/set 17 "PART ELEVEL 0 0 0  0"
+
+#########
+## Seed
+#########
+/cupdebug/setseed SEED  
+
+########
+## Run
+########
+/run/beamOn NEVENTS

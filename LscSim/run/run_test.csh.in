@@ -1,0 +1,63 @@
+#!/bin/csh -f
+
+setenv workdir "@LSCSIM_WORK_DIR@"
+
+setenv CupDATA $workdir"/CupSim/data"
+setenv LscDATA $workdir"/LscSim/data"
+
+# how many cores do you want to use?
+set ncore = 100
+
+# start run number = (0 1*ncore 2*ncore 3*ncore ..... 10*ncore 11*ncore  12*ncore)
+set  nrun = $1
+
+# number of events
+set  nevt = $2
+
+# source name
+set part_name = (gamma e-)
+
+# event window: 10us(=10000 ns) for KIMS-NaI, 100ms(=1E8 ns) for AMoRE-pilot
+set eventwindow = 10000
+
+# source category
+set srcpos = test
+
+# detector setup
+set setup = lscyemilab
+
+# numbering output file name
+set irun = `expr $nrun / $ncore + 1`
+set runno = `expr $nrun - $ncore \* \( $irun - 1 \)`
+set part = $part_name[$irun]
+
+echo $nrun
+echo $irun
+echo $runno
+echo $part
+
+# input 
+#set input="\/data\/MC\/AMoRE-pilot\/user-scratch\/basehw\/nGen\/dist3500\/bin9\/NeutSpectrum_dist3500_run"$runno
+#echo $input
+
+# output (must contain mac log root directory)
+set outputroot=$workdir"/LscSim/output/root/lscsim-"$setup-$srcpos-$part"_run"$runno"_evt"$nevt
+set rootfile = `echo $outputroot | sed 's/\//\\\//g'`
+echo $rootfile
+set exe=$workdir/LscSim/lscsim
+set mac=$workdir/LscSim/output/mac/$setup'-'$srcpos-$part"_"$runno"_"$nevt.mac
+set log=$workdir/LscSim/output/log/log-$setup'-'$srcpos'-'$part'_'$runno'_'$nevt.txt
+
+set timeseed=`date +%s%N | cut -b10-17`
+echo $timeseed
+
+if( -e $mac ) then
+    rm -f $mac
+endif
+
+/bin/sed -e s/OUTPUT/$rootfile/g -e s/NEVENTS/$nevt/g -e s/PART/$part/g -e s/SEED/$timeseed/g -e s/EVENTWINDOW/$eventwindow/g $workdir/LscSim/mac/$srcpos'_TEMPMAC' > $mac
+
+$exe $mac >&! $log
+#$exe $mac > /dev/null
+
+exit
