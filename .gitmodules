@@ -1,7 +1,7 @@
 [submodule "CupSim"]
 	path = CupSim
 	url = https://github.com/hyunzmama/CupSim.git
-        branch = v1.0.0_g4.10.7.3
+        branch = v2.0.0_g4.10.7.3
 [submodule "MCObjs"]
 	path = MCObjs
 	url = https://github.com/hyunzmama/MCObjs.git
